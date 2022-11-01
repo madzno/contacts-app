@@ -1,0 +1,29 @@
+<h3>Welcome to MyContacts App!</h3>
+
+<p>MyContacts App is an application that keeps track of your contact list for you</p>
+<p><a href="/index">View Contacts</a></p>
+
+<form action="/signin" method="post">
+  <div>
+    <label for="username">Username:
+      <input name = "username" id="username" value="<%= params[:username] %>">
+    </label>
+  </div>
+  <div>
+    <label for="password">Password:
+      <input type="password" id="password" name="password">
+    </label>
+  </div>
+  <button type="submit">Sign In</button>
+</form>
+
+<% if session[:username] %>
+  <form method="post" action="/users/signout">
+    <p>
+      Signed in as <%= session[:username] %>
+      <button type="submit">Sign Out</button>
+    </p>
+  </form>
+<% else %>
+  <p class="user-status"><a href="/users/signin">Sign In</a></p>
+<% end %>
