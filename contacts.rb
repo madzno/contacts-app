@@ -30,12 +30,23 @@ def valid_credentials?(username, password)
   end
 end
 
+def user_signed_in?
+  session.key?(:username)
+end
+
+def require_signed_in_user
+  unless user_signed_in?
+    session[:message] = "You must be signed in to do that."
+    redirect "/"
+  end
+end
+
 get "/" do
-  redirect "/signin"
+  erb :home
 end
 
 get "/signin" do
-  erb :home
+  erb :signin
 end
 
 post "/signin" do
@@ -43,8 +54,8 @@ post "/signin" do
 
   if valid_credentials?(username, params[:password])
     session[:username] = params[:username]
-    session[:message] = "Welcome!"
-    redirect "/index"
+    session[:message] = "Welcome #{username}!"
+    redirect "/"
   else
     session[:message] = "Invalid Credentials"
     status 422
@@ -52,5 +63,12 @@ post "/signin" do
   end
 end
 
+post "/signout" do
+  session.delete(:username)
+  session[:message] = "You have been signed out."
+  redirect "/"
+end
+
 get "/index" do
+  require_signed_in_user
 end
