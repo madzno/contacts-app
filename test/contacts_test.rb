@@ -19,7 +19,13 @@ class CMSTest < Minitest::Test
   end
 
   def admin_session
-    { "rack.session" => { username: "admin" } }
+    { "rack.session" => { username: "admin",
+                          contact_list:  {
+                             :friends => { jill: {phone: "914-772-8900", email: "katie@hotmail.com"},
+                                           heather: {phone: "671-890-7721", email: "emily@gmail.com"}},
+                             :work => {john: {phone: "484-383-9028", email: "kathy@gmail.com"}},
+                             :family => {ben: {phone: "552-230-3390", email: "patsy@hotmail.com"}}
+                            }} }
   end
 
   def test_home_signed_out
@@ -68,5 +74,16 @@ class CMSTest < Minitest::Test
 
     get last_response["Location"]
     assert_includes last_response.body, "Sign In"
+  end
+
+  def view_contact_index
+    get "/index", admin_session
+
+    assert_equal 200, last_response.status
+    assert_equal "text/html;charset=utf-8", last_response["Content-Type"]
+    assert_includes last_response.body, "<h3>Family"
+    assert_includes last_response.body, "<h3>Friends"
+    assert_includes last_response.body, "<h3>Work"
+    assert_includes last_response.body, %q(<a href="/:jill">Jill</a>)
   end
 end
