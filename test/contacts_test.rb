@@ -92,4 +92,11 @@ class CMSTest < Minitest::Test
     assert_includes last_response.body, "<p>Phone: 484-383-9028</p>"
     assert_includes last_response.body, "<p>Email: john@gmail.com</p>"
   end
+
+  def test_view_individual_contact_signedout
+    get "/friends/jill"
+
+    assert_equal 302, last_response.status
+    assert_equal "You must be signed in to do that.", session[:message]
+  end
 end
