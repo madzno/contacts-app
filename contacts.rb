@@ -41,11 +41,22 @@ def require_signed_in_user
   end
 end
 
-def setup_demo_contact_list
-  session[:contact_list] = { :friends => { katie: {phone: "914-772-8900", email: "katie@hotmail.com"}, emily: {phone: "671-890-7721", email: "emily@gmail.com"}},
-                            :work => {kathy: {phone: "484-383-9028", email: "kathy@gmail.com"}},
-                            :family => {patsy: {phone: "552-230-3390", email: "patsy@hotmail.com"}}
-                          }
+def contact_list
+    if session[:username] == "demouser"
+      session[:contact_list] = { :friends => { katie: {phone: "914-772-8900", email: "katie@hotmail.com"},
+                                               emily: {phone: "671-890-7721", email: "emily@gmail.com"}},
+                                  :work => {kathy: {phone: "484-383-9028", email: "kathy@gmail.com"}},
+                                  :family => {patsy: {phone: "552-230-3390", email: "patsy@hotmail.com"}}
+                                }
+    elsif ENV["RACK_ENV"] == "test"
+      session[:contact_list] = { :friends => { jill: {phone: "914-772-8900", email: "jill@hotmail.com"},
+                                               heather: {phone: "671-890-7721", email: "heather@gmail.com"}},
+                                  :work => {john: {phone: "484-383-9028", email: "john@gmail.com"}},
+                                  :family => {ben: {phone: "552-230-3390", email: "ben@hotmail.com"}}
+                                }
+    else
+      session[:contact_list] = { :friends => {}, :work => {}, :family => {} }
+    end
 end
 
 get "/" do
@@ -79,16 +90,18 @@ end
 get "/index" do
   require_signed_in_user
 
-  @contact_list = setup_demo_contact_list
+  @contact_list = contact_list
 
   erb :index
 end
 
 get "/:category/:name" do
+  require_signed_in_user
+
   @category = params[:category].to_sym
   @name = params[:name].to_sym
 
-  contact_info = session[:contact_list][@category][@name]
+  contact_info = contact_list[@category][@name]
   @phone = contact_info[:phone]
   @email = contact_info[:email]
   erb :contact

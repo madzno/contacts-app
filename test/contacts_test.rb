@@ -19,13 +19,7 @@ class CMSTest < Minitest::Test
   end
 
   def admin_session
-    { "rack.session" => { username: "admin",
-                          contact_list:  {
-                             :friends => { jill: {phone: "914-772-8900", email: "katie@hotmail.com"},
-                                           heather: {phone: "671-890-7721", email: "emily@gmail.com"}},
-                             :work => {john: {phone: "484-383-9028", email: "kathy@gmail.com"}},
-                             :family => {ben: {phone: "552-230-3390", email: "patsy@hotmail.com"}}
-                            }} }
+    { "rack.session" => { username: "admin" } }
   end
 
   def test_home_signed_out
@@ -76,14 +70,26 @@ class CMSTest < Minitest::Test
     assert_includes last_response.body, "Sign In"
   end
 
-  def view_contact_index
-    get "/index", admin_session
+  def test_view_index
+    get "/index", {}, admin_session
 
     assert_equal 200, last_response.status
-    assert_equal "text/html;charset=utf-8", last_response["Content-Type"]
     assert_includes last_response.body, "<h3>Family"
-    assert_includes last_response.body, "<h3>Friends"
-    assert_includes last_response.body, "<h3>Work"
-    assert_includes last_response.body, %q(<a href="/:jill">Jill</a>)
+    assert_includes last_response.body, %q(<a href="/friends/jill">Jill</a>)
+  end
+
+  def test_view_index_signed_out
+    get "/index"
+
+    assert_equal 302, last_response.status
+    assert_equal "You must be signed in to do that.", session[:message]
+  end
+
+  def test_view_individual_contact
+    get "/work/john", {}, admin_session
+
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "<p>Phone: 484-383-9028</p>"
+    assert_includes last_response.body, "<p>Email: john@gmail.com</p>"
   end
 end
