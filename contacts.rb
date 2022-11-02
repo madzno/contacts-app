@@ -41,6 +41,13 @@ def require_signed_in_user
   end
 end
 
+def setup_demo_contact_list
+  session[:contact_list] = { :friends => { katie: {phone: "914-772-8900", email: "katie@hotmail.com"}, emily: {phone: "671-890-7721", email: "emily@gmail.com"}},
+                            :work => {kathy: {phone: "484-383-9028", email: "kathy@gmail.com"}},
+                            :family => {patsy: {phone: "552-230-3390", email: "patsy@hotmail.com"}}
+                          }
+end
+
 get "/" do
   erb :home
 end
@@ -72,10 +79,17 @@ end
 get "/index" do
   require_signed_in_user
 
-  session[:contact_list] = { :friends => { katie: {phone: "914-772-8900", email: "katie@hotmail.com"}, emily: {phone: "671-890-7721", email: "emily@gmail.com"}},
-                             :work => {kathy: {phone: "484-383-9028", email: "kathy@gmail.com"}},
-                             :family => {patsy: {phone: "552-230-3390", email: "patsy@hotmail.com"}}
-                            }
+  @contact_list = setup_demo_contact_list
 
   erb :index
+end
+
+get "/:category/:name" do
+  @category = params[:category].to_sym
+  @name = params[:name].to_sym
+
+  contact_info = session[:contact_list][@category][@name]
+  @phone = contact_info[:phone]
+  @email = contact_info[:email]
+  erb :contact
 end
