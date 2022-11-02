@@ -1,0 +1,31 @@
+<form action="/new/contact" method="post">
+  <div>
+    <label for="name">Contact Name:
+      <input name = "name" id="name" value="<%= params[:name] %>">
+    </label>
+  </div>
+
+  <div>
+    <label for="category">Category:
+    <select  id="category" name="category">
+      <option value="friends">Friends</option>
+      <option value="family">Family</option>
+      <option value="work">Work</option>
+    </select>
+    </label>
+  </div>
+
+  <div>
+    <label for="phone">Phone Number:
+      <input name="phone" id="phone" value="<%= params[:phone]%>">
+    </label>
+  </div>
+
+  <div>
+    <label for="email">Email:
+      <input name="email" id="email" value="<%= params[:email] %>">
+    </label>
+  </div>
+
+  <button type="submit">Save</button>
+</form>
