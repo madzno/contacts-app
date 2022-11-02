@@ -95,6 +95,10 @@ get "/index" do
   erb :index
 end
 
+get "/contact/new" do
+  erb :new_contact
+end
+
 get "/:category/:name" do
   require_signed_in_user
 

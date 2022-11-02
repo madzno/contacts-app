@@ -76,6 +76,7 @@ class CMSTest < Minitest::Test
     assert_equal 200, last_response.status
     assert_includes last_response.body, "<h3>Family"
     assert_includes last_response.body, %q(<a href="/friends/jill">Jill</a>)
+    assert_includes last_response.body, %q(<a href="/contact/new">Add New)
   end
 
   def test_view_index_signed_out
