@@ -1,0 +1,13 @@
+<h3>Edit <%=@name.capitalize%>'s Contact Information</h3>
+
+  <div>
+    <label for="phone">Edit Phone Number:
+      <input name="phone" id="phone" value="<%= params[:phone] || @current_phone %>">
+    </label>
+  </div>
+
+  <div>
+    <label for="email">Edit Email:
+      <input name="email" id="email" value="<%= params[:email] || @current_email %>">
+    </label>
+  </div>

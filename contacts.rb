@@ -135,6 +135,20 @@ post '/index/:category/:name/delete' do
   redirect "/index"
 end
 
+get "/:category/:name/edit" do
+  require_signed_in_user
+
+  @category = params[:category].to_sym
+  @name = params[:name].to_sym
+  @current_phone = session[:contact_list][@category][@name][:phone]
+  @current_email = session[:contact_list][@category][@name][:email]
+
+  erb :edit_contact
+end
+
+post "/:category/:name/edit" do
+end
+
 get '/:category/:name' do
   require_signed_in_user
 
