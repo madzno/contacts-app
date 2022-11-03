@@ -1,25 +1,26 @@
-require "sinatra"
-require "sinatra/reloader"
-require "sinatra/content_for"
-require "tilt/erubis"
-require "yaml"
-require "bcrypt"
+require 'sinatra'
+require 'sinatra/reloader'
+require 'sinatra/content_for'
+require 'tilt/erubis'
+require 'yaml'
+require 'bcrypt'
 
 configure do
   enable :sessions
-  set :session_secret, "ecd8395e28623aad9ac3053dfc47dbeff10971c0db59deaba5e0acada1939451"
+  set :session_secret, 'ecd8395e28623aad9ac3053dfc47dbeff10971c0db59deaba5e0acada1939451'
+  set :erb, :escape_html => true
 end
 
 before do
-  session[:contact_list] || session[:contact_list] = {:friends => {}, :work => {}, :family => {}}
+  session[:contact_list] || session[:contact_list] = { :friends => {}, :work => {}, :family => {} }
 end
 
 def load_user_credentials
-  credentials_path = if ENV["RACK_ENV"] == "test"
-    File.expand_path("../test/users.yml", __FILE__)
-  else
-    File.expand_path("../users.yml", __FILE__)
-  end
+  credentials_path = if ENV['RACK_ENV'] == 'test'
+                       File.expand_path('../test/users.yml', __FILE__)
+                     else
+                       File.expand_path('../users.yml', __FILE__)
+                     end
   YAML.load_file(credentials_path)
 end
 
@@ -40,40 +41,52 @@ end
 
 def require_signed_in_user
   unless user_signed_in?
-    session[:message] = "You must be signed in to do that."
-    redirect "/"
+    session[:message] = 'You must be signed in to do that.'
+    redirect '/'
   end
 end
 
-get "/" do
+def error_for_new_contact(category, name, phone, email)
+  if !(1..100).cover?(name.strip.size)
+    'Contact name must be between 1 and 100 characters.'
+  elsif session[:contact_list][category].key?(name.to_sym)
+    'Contact name must be unique.'
+  elsif !phone.match?(/[0-9]{3}-[0-9]{3}-[0-9]{4}/)
+    'Please enter a valid 10 digit phone number in the format: XXX-XXX-XXXX'
+  elsif !email.include?('@')
+    'Please enter a valid email address.'
+  end
+end
+
+get '/' do
   erb :home
 end
 
-get "/signin" do
+get '/signin' do
   erb :signin
 end
 
-post "/signin" do
+post '/signin' do
   username = params[:username]
 
   if valid_credentials?(username, params[:password])
     session[:username] = params[:username]
     session[:message] = "Welcome #{username}!"
-    redirect "/"
+    redirect '/'
   else
-    session[:message] = "Invalid Credentials"
+    session[:message] = 'Invalid Credentials'
     status 422
     erb :home
   end
 end
 
-post "/signout" do
+post '/signout' do
   session.delete(:username)
-  session[:message] = "You have been signed out."
-  redirect "/"
+  session[:message] = 'You have been signed out.'
+  redirect '/'
 end
 
-get "/index" do
+get '/index' do
   require_signed_in_user
 
   @contact_list = session[:contact_list]
@@ -81,27 +94,34 @@ get "/index" do
   erb :index
 end
 
-get "/contact/new" do
+get '/contact/new' do
   require_signed_in_user
 
   erb :new_contact
 end
 
-post "/contact/new" do
+post '/contact/new' do
   require_signed_in_user
 
-  name = params[:name].to_sym
   category = params[:category].to_sym
-  phone = params[:phone]
-  email = params[:email]
+  name = params[:name]
+  new_phone = params[:phone]
+  new_email = params[:email]
 
-  @contact_list = session[:contact_list]
-  @contact_list[category][name] = {phone: phone, email: email}
+  error = error_for_new_contact(category, name, new_phone, new_email)
 
-  redirect "/index"
+  if error
+    session[:message] = error
+    status 422
+    erb :new_contact
+  else
+    @contact_list = session[:contact_list]
+    @contact_list[category][name.to_sym] = { phone: new_phone, email: new_email }
+    redirect '/index'
+  end
 end
 
-get "/:category/:name" do
+get '/:category/:name' do
   require_signed_in_user
 
   @category = params[:category].to_sym

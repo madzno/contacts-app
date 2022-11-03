@@ -141,4 +141,32 @@ class CMSTest < Minitest::Test
     assert_equal 302, last_response.status
     assert_equal "You must be signed in to do that.", session[:message]
   end
+
+  def test_add_new_contact_invalid_name_character_count
+    post "/contact/new", { name: "", category: "friends", phone: "555-666-777", email: "maddy@gmail.com"}, admin_session
+
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, "Contact name must be between 1 and 100 characters"
+  end
+
+  def test_add_new_contact_invalid_name_not_unique
+    post "/contact/new", { name: "jill", category: "friends", phone: "777-888-9900", email: "jill@hotmail.com" }, admin_session
+
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, "Contact name must be unique."
+  end
+
+  def test_add_new_contact_invalid_phone_number
+    post "/contact/new", { name: "hailey", category: "family", phone: "09-88-77", email: "hailz@hotmail,com"}, admin_session
+
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, "Please enter a valid 10 digit phone number in the format: XXX-XXX-XXXX"
+  end
+
+  def test_add_new_contact_invalid_email
+    post "/contact/new", { name: "thomas", category: "work", phone: "999-020-3455", email: "thomasgmail" }, admin_session
+
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, "Please enter a valid email address."
+  end
 end
