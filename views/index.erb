@@ -7,6 +7,10 @@
       <% @contact_list[:family].keys.each do |member|%>
         <li>
           <a href="/family/<%=member%>"><%=member.capitalize%></a>
+
+          <form action="/index/family/<%=member%>/delete" method="post">
+            <button type="submit">Delete</button>
+          </form>
         </li>
       <%end%>
     </ul>
@@ -20,6 +24,11 @@
       <% @contact_list[:friends].keys.each do |friend|%>
         <li>
           <a href="/friends/<%=friend%>"><%=friend.capitalize%></a>
+
+          <form action="/index/friends/<%=friend%>/delete" method="post">
+            <button type="submit">Delete</button>
+          </form>
+
         </li>
       <%end%>
     </ul>
@@ -33,6 +42,10 @@
       <% @contact_list[:work].keys.each do |coworker|%>
         <li>
           <a href="/work/<%=coworker%>"><%=coworker.capitalize%></a>
+
+          <form action="/index/work/<%=coworker%>/delete" method="post">
+            <button type="submit">Delete</button>
+          </form>
         </li>
       <%end%>
     </ul>

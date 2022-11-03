@@ -121,6 +121,20 @@ post '/contact/new' do
   end
 end
 
+post '/index/:category/:name/delete' do
+  require_signed_in_user
+
+  category = params[:category].to_sym
+  name = params[:name].to_sym
+  contact_list = session[:contact_list]
+
+  contact_list[category].delete(name)
+
+  session[:message] = "Contact information for #{name.capitalize} deleted."
+
+  redirect "/index"
+end
+
 get '/:category/:name' do
   require_signed_in_user
 

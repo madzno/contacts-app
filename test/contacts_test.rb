@@ -173,4 +173,22 @@ class CMSTest < Minitest::Test
     assert_equal 422, last_response.status
     assert_includes last_response.body, 'Please enter a valid email address.'
   end
+
+  def test_delete_contact_signedout
+    post '/index/friends/jill/delete'
+
+    assert_equal 302, last_response.status
+    assert_equal 'You must be signed in to do that.', session[:message]
+  end
+
+  def test_delete_contact
+    post '/index/friends/jill/delete', {}, admin_session
+
+    assert_equal 302, last_response.status
+    assert_nil session[:contact_list][:friends][:jill]
+
+    get last_response["Location"]
+    assert_includes last_response.body, "Contact information for Jill deleted."
+    refute_includes last_response.body, %q(<a href="/friends/jill"> Jill </a>)
+  end
 end
