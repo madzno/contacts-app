@@ -123,4 +123,22 @@ class CMSTest < Minitest::Test
     assert_equal 302, last_response.status
     assert_equal "You must be signed in to do that.", session[:message]
   end
+
+  def test_add_new_contact
+    post "/contact/new", { name: "maddy", category: "friends", phone: "444-678-9012", email: "maddy@gmali.com"}, admin_session
+
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+    assert_equal 200, last_response.status
+    assert_includes session[:contact_list][:friends], :maddy
+    assert_includes last_response.body, %q(<a href="/friends/maddy">Maddy</a>)
+  end
+
+  def test_add_new_contact_signedout
+    get "/contact/new"
+
+    assert_equal 302, last_response.status
+    assert_equal "You must be signed in to do that.", session[:message]
+  end
 end
