@@ -10,6 +10,10 @@ configure do
   set :session_secret, "ecd8395e28623aad9ac3053dfc47dbeff10971c0db59deaba5e0acada1939451"
 end
 
+before do
+  session[:contact_list] || session[:contact_list] = {:friends => {}, :work => {}, :family => {}}
+end
+
 def load_user_credentials
   credentials_path = if ENV["RACK_ENV"] == "test"
     File.expand_path("../test/users.yml", __FILE__)
@@ -39,24 +43,6 @@ def require_signed_in_user
     session[:message] = "You must be signed in to do that."
     redirect "/"
   end
-end
-
-def contact_list
-    if session[:username] == "demouser"
-      session[:contact_list] = { :friends => { katie: {phone: "914-772-8900", email: "katie@hotmail.com"},
-                                               emily: {phone: "671-890-7721", email: "emily@gmail.com"}},
-                                  :work => {kathy: {phone: "484-383-9028", email: "kathy@gmail.com"}},
-                                  :family => {patsy: {phone: "552-230-3390", email: "patsy@hotmail.com"}}
-                                }
-    elsif ENV["RACK_ENV"] == "test"
-      session[:contact_list] = { :friends => { jill: {phone: "914-772-8900", email: "jill@hotmail.com"},
-                                               heather: {phone: "671-890-7721", email: "heather@gmail.com"}},
-                                  :work => {john: {phone: "484-383-9028", email: "john@gmail.com"}},
-                                  :family => {ben: {phone: "552-230-3390", email: "ben@hotmail.com"}}
-                                }
-    else
-      session[:contact_list] = { :friends => {}, :work => {}, :family => {} }
-    end
 end
 
 get "/" do
@@ -90,13 +76,29 @@ end
 get "/index" do
   require_signed_in_user
 
-  @contact_list = contact_list
+  @contact_list = session[:contact_list]
 
   erb :index
 end
 
 get "/contact/new" do
+  require_signed_in_user
+
   erb :new_contact
+end
+
+post "/contact/new" do
+  require_signed_in_user
+
+  name = params[:name].to_sym
+  category = params[:category].to_sym
+  phone = params[:phone]
+  email = params[:email]
+
+  @contact_list = session[:contact_list]
+  @contact_list[category][name] = {phone: phone, email: email}
+
+  redirect "/index"
 end
 
 get "/:category/:name" do
@@ -105,7 +107,7 @@ get "/:category/:name" do
   @category = params[:category].to_sym
   @name = params[:name].to_sym
 
-  contact_info = contact_list[@category][@name]
+  contact_info = session[:contact_list][@category][@name]
   @phone = contact_info[:phone]
   @email = contact_info[:email]
   erb :contact

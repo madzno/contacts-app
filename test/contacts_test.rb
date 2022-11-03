@@ -19,7 +19,12 @@ class CMSTest < Minitest::Test
   end
 
   def admin_session
-    { "rack.session" => { username: "admin" } }
+    { "rack.session" => {
+                          username: "admin",
+                          contact_list: {:friends => { jill: { phone: "772-889-9005", email: "jill@hotmail.com"}},
+                                         :work => { john: { phone: "484-383-9028", email: "john@gmail.com"} },
+                                         :family => {} }
+                        } }
   end
 
   def test_home_signed_out
@@ -96,6 +101,24 @@ class CMSTest < Minitest::Test
 
   def test_view_individual_contact_signedout
     get "/friends/jill"
+
+    assert_equal 302, last_response.status
+    assert_equal "You must be signed in to do that.", session[:message]
+  end
+
+  def test_view_new_contact_form
+    get "/contact/new", {}, admin_session
+
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, %q(<form action="/contact/new" method="post">)
+    assert_includes last_response.body, %q(<input name="name")
+    assert_includes last_response.body, %q(<input name="phone")
+    assert_includes last_response.body, %q(<select id="category")
+    assert_includes last_response.body, %q(<input name="email")
+  end
+
+  def test_view_new_contact_form_signedout
+    get "/contact/new"
 
     assert_equal 302, last_response.status
     assert_equal "You must be signed in to do that.", session[:message]

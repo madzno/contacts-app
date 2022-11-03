@@ -1,13 +1,14 @@
-<form action="/new/contact" method="post">
+<form action="/contact/new" method="post">
+
   <div>
     <label for="name">Contact Name:
-      <input name = "name" id="name" value="<%= params[:name] %>">
+      <input name="name" id="name" value="<%= params[:name] %>">
     </label>
   </div>
 
   <div>
     <label for="category">Category:
-    <select  id="category" name="category">
+    <select id="category" name="category">
       <option value="friends">Friends</option>
       <option value="family">Family</option>
       <option value="work">Work</option>
