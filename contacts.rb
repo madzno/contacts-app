@@ -58,6 +58,14 @@ def error_for_new_contact(category, name, phone, email)
   end
 end
 
+def valid_phone_number?(phone)
+  phone.match?(/[0-9]{3}-[0-9]{3}-[0-9]{4}/)
+end
+
+def valid_email?(email)
+  email.include?('@')
+end
+
 get '/' do
   erb :home
 end
@@ -147,6 +155,32 @@ get "/:category/:name/edit" do
 end
 
 post "/:category/:name/edit" do
+  require_signed_in_user
+
+  @category = params[:category].to_sym
+  @name = params[:name].to_sym
+  @current_phone = session[:contact_list][@category][@name][:phone]
+  @current_email = session[:contact_list][@category][@name][:email]
+
+  contact_info = session[:contact_list][@category][@name]
+
+  if params[:phone] && !valid_phone_number?(params[:phone])
+    session[:message] = 'Please enter a valid 10 digit phone number in the format: XXX-XXX-XXXX'
+    status 422
+    erb :edit_contact
+  elsif params[:email] && !valid_email?(params[:email])
+    session[:message] = 'Please enter valid email address.'
+    status 422
+    erb :edit_contact
+  elsif params[:phone] && valid_phone_number?(params[:phone])
+    contact_info[:phone] = params[:phone]
+    session[:message] = "#{@name.capitalize}'s phone updated."
+    redirect "/#{@category}/#{@name}/edit"
+  elsif params[:email] && valid_email?(params[:email])
+    contact_info[:email] = params[:email]
+    session[:message] = "#{@name.capitalize}'s email updated."
+    redirect "/#{@category}/#{@name}/edit"
+  end
 end
 
 get '/:category/:name' do

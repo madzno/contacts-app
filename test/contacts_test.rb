@@ -187,8 +187,47 @@ class CMSTest < Minitest::Test
     assert_equal 302, last_response.status
     assert_nil session[:contact_list][:friends][:jill]
 
-    get last_response["Location"]
-    assert_includes last_response.body, "Contact information for Jill deleted."
+    get last_response['Location']
+    assert_includes last_response.body, 'Contact information for Jill deleted.'
     refute_includes last_response.body, %q(<a href="/friends/jill"> Jill </a>)
+  end
+
+  def test_view_edit_contact_page
+    get '/friends/jill/edit', {}, admin_session
+
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, %q(<input name="phone")
+    assert_includes last_response.body, %q(<input name="email")
+    assert_includes last_response.body, %q(<button type="submit")
+  end
+
+  def test_view_edit_contact_page_signedout
+    get '/friends/jill/edit'
+
+    assert_equal 302, last_response.status
+    assert_equal 'You must be signed in to do that.', session[:message]
+  end
+
+  def test_edit_phone
+    post '/friends/jill/edit', { phone: "914-889-0090" }, admin_session
+
+    assert_equal 302, last_response.status
+    assert_equal '914-889-0090', session[:contact_list][:friends][:jill][:phone]
+    assert_equal "Jill's phone updated.", session[:message]
+  end
+
+  def test_edit_email
+    post '/work/john/edit', { email: 'john@hotmail.com' }, admin_session
+
+    assert_equal 302, last_response.status
+    assert_equal 'john@hotmail.com', session[:contact_list][:work][:john][:email]
+    assert_equal "John's email updated.", session[:message]
+  end
+
+  def test_edit_contact_signedout
+    post '/work/john/edit'
+
+    assert_equal 302, last_response.status
+    assert_equal 'You must be signed in to do that.', session[:message]
   end
 end
