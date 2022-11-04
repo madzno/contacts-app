@@ -230,4 +230,20 @@ class CMSTest < Minitest::Test
     assert_equal 302, last_response.status
     assert_equal 'You must be signed in to do that.', session[:message]
   end
+
+  def test_edit_phone_invalid
+    post '/friends/jill/edit', { phone: "914-889-009" }, admin_session
+
+    assert_equal 422, last_response.status
+    refute_equal '914-889-009', session[:contact_list][:friends][:jill][:phone]
+    assert_includes last_response.body, 'Please enter a valid 10 digit phone number in the format: XXX-XXX-XXXX'
+  end
+
+  def test_edit_email_invalid
+    post '/work/john/edit', { email: 'jhotmail' }, admin_session
+
+    assert_equal 422, last_response.status
+    refute_equal 'jhotmail', session[:contact_list][:work][:john][:email]
+    assert_includes last_response.body, 'Please enter a valid email address.'
+  end
 end

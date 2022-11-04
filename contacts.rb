@@ -169,7 +169,7 @@ post "/:category/:name/edit" do
     status 422
     erb :edit_contact
   elsif params[:email] && !valid_email?(params[:email])
-    session[:message] = 'Please enter valid email address.'
+    session[:message] = 'Please enter a valid email address.'
     status 422
     erb :edit_contact
   elsif params[:phone] && valid_phone_number?(params[:phone])
