@@ -7,7 +7,7 @@ require 'rack/test'
 
 require_relative '../contacts'
 
-class CMSTest < Minitest::Test
+class ContactsTest < Minitest::Test
   include Rack::Test::Methods
 
   def app
@@ -49,7 +49,7 @@ class CMSTest < Minitest::Test
 
     assert_equal 200, last_response.status
     assert_includes last_response.body, %q(<form action="/signin")
-    assert_includes last_response.body, %q(<input name = "username")
+    assert_includes last_response.body, %q(<input name="username")
     assert_includes last_response.body, %q(<button type="submit")
   end
 
@@ -186,9 +186,9 @@ class CMSTest < Minitest::Test
 
     assert_equal 302, last_response.status
     assert_nil session[:contact_list][:friends][:jill]
+    assert_equal session[:message], 'Contact information for Jill deleted.'
 
     get last_response['Location']
-    assert_includes last_response.body, 'Contact information for Jill deleted.'
     refute_includes last_response.body, %q(<a href="/friends/jill"> Jill </a>)
   end
 

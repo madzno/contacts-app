@@ -15,6 +15,12 @@ before do
   session[:contact_list] || session[:contact_list] = { :friends => {}, :work => {}, :family => {} }
 end
 
+helpers do
+  def has_contacts?(category)
+    !session[:contact_list][category].empty?
+  end
+end
+
 def load_user_credentials
   credentials_path = if ENV['RACK_ENV'] == 'test'
                        File.expand_path('../test/users.yml', __FILE__)
@@ -51,9 +57,9 @@ def error_for_new_contact(category, name, phone, email)
     'Contact name must be between 1 and 100 characters.'
   elsif session[:contact_list][category].key?(name.to_sym)
     'Contact name must be unique.'
-  elsif !phone.match?(/[0-9]{3}-[0-9]{3}-[0-9]{4}/)
+  elsif !valid_phone_number?(phone)
     'Please enter a valid 10 digit phone number in the format: XXX-XXX-XXXX'
-  elsif !email.include?('@')
+  elsif !valid_email?(email)
     'Please enter a valid email address.'
   end
 end
@@ -84,7 +90,7 @@ post '/signin' do
   else
     session[:message] = 'Invalid Credentials'
     status 422
-    erb :home
+    erb :signin
   end
 end
 

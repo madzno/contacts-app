@@ -2,7 +2,7 @@
 
 <section>
   <h3>Family</h3>
-  <%if !@contact_list[:family].empty?%>
+  <%if has_contacts?(:family)%>
     <ul>
       <% @contact_list[:family].keys.each do |member|%>
         <li>
@@ -19,7 +19,7 @@
 
 <section>
   <h3>Friends</h3>
-  <% if !@contact_list[:friends].empty?%>
+  <% if has_contacts?(:friends)%>
     <ul>
       <% @contact_list[:friends].keys.each do |friend|%>
         <li>
@@ -37,7 +37,7 @@
 
 <section>
   <h3>Work</h3>
-  <% if !@contact_list[:work].empty?%>
+  <% if has_contacts?(:work)%>
     <ul>
       <% @contact_list[:work].keys.each do |coworker|%>
         <li>
