@@ -1,0 +1,17 @@
+<h3>Edit <%=@name.capitalize%>'s Contact Information</h3>
+
+<form action="/<%=@category%>/<%=@name%>/edit" method="post">
+  <label for="phone">Edit Phone Number:
+    <input name="phone" id="phone" value="<%= params[:phone] || @current_phone %>">
+  </label>
+  <button type="submit">Save</button>
+</form>
+
+<form action="/<%=@category%>/<%=@name%>/edit" method="post">
+  <label for="email">Edit Email:
+    <input name="email" id="email" value="<%= params[:email] || @current_email %>">
+  </label>
+    <button type="submit">Save</button>
+</form>
+
+<a href="/index">Back to Contacts Index</a>

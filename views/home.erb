@@ -1,0 +1,15 @@
+<h3>Welcome to MyContacts App!</h3>
+
+<p>MyContacts App is an application that keeps track of your contact list for you.</p>
+<p><a href="/index">View Contacts</a></p>
+
+<% if session[:username] %>
+  <form method="post" action="/signout">
+    <p>
+      Signed in as <%= session[:username] %>
+      <button type="submit">Sign Out</button>
+    </p>
+  </form>
+<% else %>
+  <p><a href="/signin">Sign In</a></p>
+<% end %>
