@@ -1,6 +1,6 @@
-<h1><%=session[:username]%>'s Contacts:</h1>
+<h1>My Contacts:</h1>
 
-<section>
+<section id="contacts-list">
   <h3>Family</h3>
   <%if has_contacts?(:family)%>
     <ul>
@@ -9,7 +9,7 @@
           <a href="/family/<%=member%>"><%=member.capitalize%></a>
 
           <form action="/index/family/<%=member%>/delete" method="post">
-            <button type="submit">Delete</button>
+            <button id="delete-button" type="submit">Delete</button>
           </form>
         </li>
       <%end%>
@@ -44,7 +44,7 @@
           <a href="/work/<%=coworker%>"><%=coworker.capitalize%></a>
 
           <form action="/index/work/<%=coworker%>/delete" method="post">
-            <button type="submit">Delete</button>
+            <button id="delete-button" type="submit">Delete</button>
           </form>
         </li>
       <%end%>
